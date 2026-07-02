@@ -113,13 +113,44 @@ export function useTransactions() {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
+    // Try to load cached data immediately to show something fast
+    if (typeof window !== 'undefined') {
+      const cachedUserId = localStorage.getItem('lastUserId');
+      if (cachedUserId) {
+        try {
+          const cachedTrans = localStorage.getItem(`transactions_cache_${cachedUserId}`);
+          if (cachedTrans) setTransactions(JSON.parse(cachedTrans));
+          
+          const cachedDebts = localStorage.getItem(`debts_cache_${cachedUserId}`);
+          if (cachedDebts) setDebts(JSON.parse(cachedDebts));
+          
+          const cachedGoals = localStorage.getItem(`goals_cache_${cachedUserId}`);
+          if (cachedGoals) setGoals(JSON.parse(cachedGoals));
+
+          setUser({ uid: cachedUserId } as User); // Mock user so UI doesn't block on login screen
+          setIsLoaded(true);
+        } catch (e) {
+          console.error("Error loading cached data", e);
+        }
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      if (!currentUser) {
+      if (currentUser) {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('lastUserId', currentUser.uid);
+        }
+      } else {
         setTransactions([]);
         setDebts([]);
         setGoals([]);
         setIsLoaded(true);
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('lastUserId');
+        }
       }
     });
     return () => unsubscribe();
@@ -151,6 +182,9 @@ export function useTransactions() {
           snapshot.forEach((doc) => data.push(doc.data() as Transaction));
           data.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
           setTransactions(data);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem(`transactions_cache_${user.uid}`, JSON.stringify(data));
+          }
         }
       });
 
@@ -162,6 +196,9 @@ export function useTransactions() {
           snapshot.forEach((doc) => data.push(doc.data() as Debt));
           data.sort((a, b) => b.amount - a.amount);
           setDebts(data);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem(`debts_cache_${user.uid}`, JSON.stringify(data));
+          }
         }
       });
 
@@ -176,6 +213,9 @@ export function useTransactions() {
           snapshot.forEach((doc) => data.push(doc.data() as Goal));
           data.sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime());
           setGoals(data);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem(`goals_cache_${user.uid}`, JSON.stringify(data));
+          }
         }
       });
 
