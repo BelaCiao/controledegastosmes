@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { Transaction } from "@/lib/types";
 import { format } from "date-fns";
-import { Plus } from "lucide-react";
+import { Plus, Trash2, Check } from "lucide-react";
 
 interface SpreadsheetViewProps {
   transactions: Transaction[];
   onAdd: (t: Omit<Transaction, 'id' | 'date'> & { id?: string, date?: string }) => void;
   onUpdate?: (id: string, updates: Partial<Transaction>) => void;
+  onRemove?: (id: string) => void;
 }
 
-export function SpreadsheetView({ transactions, onAdd, onUpdate }: SpreadsheetViewProps) {
+export function SpreadsheetView({ transactions, onAdd, onUpdate, onRemove }: SpreadsheetViewProps) {
   const [addingRow, setAddingRow] = useState(false);
   const [newType, setNewType] = useState<"entrada" | "saida">("saida");
   const [newDesc, setNewDesc] = useState("");
@@ -79,49 +80,76 @@ export function SpreadsheetView({ transactions, onAdd, onUpdate }: SpreadsheetVi
                     </td>
                     
                     {/* ENTRADAS */}
-                    <td className="px-4 py-2 border-r border-zinc-800/50 bg-green-500/5 text-zinc-300 w-[30%]" onClick={() => entrada && setEditingCell({ id: entrada.id, field: 'description' })}>
+                    <td className="px-4 py-2 border-r border-zinc-800/50 bg-green-500/5 text-zinc-300 w-[30%] group" onClick={() => entrada && setEditingCell({ id: entrada.id, field: 'description' })}>
                       {entrada ? (
                         editingCell?.id === entrada.id && editingCell.field === 'description' ? (
-                          <input
-                            type="text"
-                            autoFocus
-                            defaultValue={entrada.description}
-                            onBlur={(e) => {
-                              if (onUpdate && e.target.value !== entrada.description) onUpdate(entrada.id, { description: e.target.value });
-                              setEditingCell(null);
-                            }}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                if (onUpdate && e.currentTarget.value !== entrada.description) onUpdate(entrada.id, { description: e.currentTarget.value });
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="text"
+                              autoFocus
+                              defaultValue={entrada.description}
+                              onBlur={(e) => {
+                                if (onUpdate && e.target.value !== entrada.description) onUpdate(entrada.id, { description: e.target.value });
                                 setEditingCell(null);
-                              } else if (e.key === 'Escape') setEditingCell(null);
-                            }}
-                            className="bg-transparent border-b border-green-500 outline-none w-full text-zinc-200"
-                          />
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  if (onUpdate && e.currentTarget.value !== entrada.description) onUpdate(entrada.id, { description: e.currentTarget.value });
+                                  setEditingCell(null);
+                                } else if (e.key === 'Escape') setEditingCell(null);
+                              }}
+                              className="bg-transparent border-b border-green-500 outline-none w-full text-zinc-200"
+                            />
+                            <Check className="w-4 h-4 text-green-500 shrink-0" />
+                          </div>
                         ) : (
-                          <span className="cursor-pointer hover:text-white transition-colors block">{entrada.description}</span>
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <span className="cursor-pointer hover:text-white transition-colors block">{entrada.description}</span>
+                              {entrada.tags && entrada.tags.length > 0 && (
+                                <div className="flex gap-1 mt-1">
+                                  {entrada.tags.map(tag => (
+                                    <span key={tag} className="text-[10px] bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded-sm">
+                                      {tag}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); if (onRemove) onRemove(entrada.id); }}
+                              className="opacity-0 group-hover:opacity-100 p-1 text-red-500/50 hover:text-red-400 transition-opacity"
+                              title="Apagar Linha"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         )
                       ) : ""}
                     </td>
                     <td className="px-4 py-2 border-r border-zinc-800/50 bg-green-500/5 text-green-400 font-medium text-right w-[15%]" onClick={() => entrada && setEditingCell({ id: entrada.id, field: 'amount' })}>
                       {entrada ? (
-                         editingCell?.id === entrada.id && editingCell.field === 'amount' ? (
-                          <input
-                            type="number"
-                            autoFocus
-                            defaultValue={entrada.amount}
-                            onBlur={(e) => {
-                              if (onUpdate && Number(e.target.value) !== entrada.amount) onUpdate(entrada.id, { amount: Number(e.target.value) });
-                              setEditingCell(null);
-                            }}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                if (onUpdate && Number(e.currentTarget.value) !== entrada.amount) onUpdate(entrada.id, { amount: Number(e.currentTarget.value) });
+                        editingCell?.id === entrada.id && editingCell.field === 'amount' ? (
+                          <div className="flex items-center gap-2 justify-end">
+                            <input
+                              type="number"
+                              step="0.01"
+                              autoFocus
+                              defaultValue={entrada.amount}
+                              onBlur={(e) => {
+                                if (onUpdate && Number(e.target.value) !== entrada.amount) onUpdate(entrada.id, { amount: Number(e.target.value) });
                                 setEditingCell(null);
-                              } else if (e.key === 'Escape') setEditingCell(null);
-                            }}
-                            className="bg-transparent border-b border-green-500 outline-none w-full text-right text-green-400"
-                          />
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  if (onUpdate && Number(e.currentTarget.value) !== entrada.amount) onUpdate(entrada.id, { amount: Number(e.currentTarget.value) });
+                                  setEditingCell(null);
+                                } else if (e.key === 'Escape') setEditingCell(null);
+                              }}
+                              className="bg-transparent border-b border-green-500 outline-none w-full text-right text-green-400"
+                            />
+                            <Check className="w-4 h-4 text-green-500 shrink-0" />
+                          </div>
                          ) : (
                            <span className="cursor-pointer hover:text-green-300 transition-colors block">R$ {entrada.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
                          )
@@ -129,49 +157,76 @@ export function SpreadsheetView({ transactions, onAdd, onUpdate }: SpreadsheetVi
                     </td>
 
                     {/* SAIDAS */}
-                    <td className="px-4 py-2 border-r border-zinc-800/50 bg-red-500/5 text-zinc-300 w-[30%]" onClick={() => saida && setEditingCell({ id: saida.id, field: 'description' })}>
+                    <td className="px-4 py-2 border-r border-zinc-800/50 bg-red-500/5 text-zinc-300 w-[30%] group" onClick={() => saida && setEditingCell({ id: saida.id, field: 'description' })}>
                       {saida ? (
                         editingCell?.id === saida.id && editingCell.field === 'description' ? (
-                          <input
-                            type="text"
-                            autoFocus
-                            defaultValue={saida.description}
-                            onBlur={(e) => {
-                              if (onUpdate && e.target.value !== saida.description) onUpdate(saida.id, { description: e.target.value });
-                              setEditingCell(null);
-                            }}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                if (onUpdate && e.currentTarget.value !== saida.description) onUpdate(saida.id, { description: e.currentTarget.value });
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="text"
+                              autoFocus
+                              defaultValue={saida.description}
+                              onBlur={(e) => {
+                                if (onUpdate && e.target.value !== saida.description) onUpdate(saida.id, { description: e.target.value });
                                 setEditingCell(null);
-                              } else if (e.key === 'Escape') setEditingCell(null);
-                            }}
-                            className="bg-transparent border-b border-red-500 outline-none w-full text-zinc-200"
-                          />
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  if (onUpdate && e.currentTarget.value !== saida.description) onUpdate(saida.id, { description: e.currentTarget.value });
+                                  setEditingCell(null);
+                                } else if (e.key === 'Escape') setEditingCell(null);
+                              }}
+                              className="bg-transparent border-b border-red-500 outline-none w-full text-zinc-200"
+                            />
+                            <Check className="w-4 h-4 text-red-500 shrink-0" />
+                          </div>
                         ) : (
-                          <span className="cursor-pointer hover:text-white transition-colors block">{saida.description}</span>
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <span className="cursor-pointer hover:text-white transition-colors block">{saida.description}</span>
+                              {saida.tags && saida.tags.length > 0 && (
+                                <div className="flex gap-1 mt-1">
+                                  {saida.tags.map(tag => (
+                                    <span key={tag} className="text-[10px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded-sm">
+                                      {tag}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); if (onRemove) onRemove(saida.id); }}
+                              className="opacity-0 group-hover:opacity-100 p-1 text-red-500/50 hover:text-red-400 transition-opacity"
+                              title="Apagar Linha"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         )
                       ) : ""}
                     </td>
                     <td className="px-4 py-2 border-r border-zinc-800/50 bg-red-500/5 text-zinc-400 text-right w-[15%]" onClick={() => saida && setEditingCell({ id: saida.id, field: 'amount' })}>
                       {saida ? (
                          editingCell?.id === saida.id && editingCell.field === 'amount' ? (
-                          <input
-                            type="number"
-                            autoFocus
-                            defaultValue={saida.amount}
-                            onBlur={(e) => {
-                              if (onUpdate && Number(e.target.value) !== saida.amount) onUpdate(saida.id, { amount: Number(e.target.value) });
-                              setEditingCell(null);
-                            }}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                if (onUpdate && Number(e.currentTarget.value) !== saida.amount) onUpdate(saida.id, { amount: Number(e.currentTarget.value) });
+                          <div className="flex items-center gap-2 justify-end">
+                            <input
+                              type="number"
+                              step="0.01"
+                              autoFocus
+                              defaultValue={saida.amount}
+                              onBlur={(e) => {
+                                if (onUpdate && Number(e.target.value) !== saida.amount) onUpdate(saida.id, { amount: Number(e.target.value) });
                                 setEditingCell(null);
-                              } else if (e.key === 'Escape') setEditingCell(null);
-                            }}
-                            className="bg-transparent border-b border-red-500 outline-none w-full text-right text-red-400"
-                          />
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  if (onUpdate && Number(e.currentTarget.value) !== saida.amount) onUpdate(saida.id, { amount: Number(e.currentTarget.value) });
+                                  setEditingCell(null);
+                                } else if (e.key === 'Escape') setEditingCell(null);
+                              }}
+                              className="bg-transparent border-b border-red-500 outline-none w-full text-right text-red-400"
+                            />
+                            <Check className="w-4 h-4 text-red-500 shrink-0" />
+                          </div>
                          ) : (
                            <span className="cursor-pointer hover:text-red-300 transition-colors block">R$ {saida.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
                          )

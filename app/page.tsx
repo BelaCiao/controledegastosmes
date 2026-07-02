@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { useTransactions } from "@/hooks/useTransactions";
-import { Wallet, TrendingUp, TrendingDown, LayoutList, Table2, AlertTriangle, ArrowRight, CheckCircle2, Clock, Target, ChevronLeft, ChevronRight, Wand2 } from "lucide-react";
+import { Wallet, TrendingUp, TrendingDown, LayoutList, Table2, AlertTriangle, ArrowRight, CheckCircle2, Clock, Target, ChevronLeft, ChevronRight, Wand2, Calculator as CalculatorIcon, PieChart as PieChartIcon } from "lucide-react";
 import { AddTransactionModal } from "@/components/AddTransactionModal";
 import { TransactionList } from "@/components/TransactionList";
 import { SpreadsheetView } from "@/components/SpreadsheetView";
 import { DebtsAndGoals } from "@/components/DebtsAndGoals";
+import { Calculator } from "@/components/Calculator";
+import { ConsumptionAnalysis } from "@/components/ConsumptionAnalysis";
 import * as Tabs from "@radix-ui/react-tabs";
 
 export default function Home() {
@@ -223,6 +225,20 @@ export default function Home() {
               <AlertTriangle className="w-4 h-4" />
               Dívidas & Metas
             </Tabs.Trigger>
+            <Tabs.Trigger
+              value="calculadora"
+              className="flex-1 min-w-[120px] flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-zinc-400 data-[state=active]:bg-indigo-900/20 data-[state=active]:text-indigo-400 data-[state=active]:border-indigo-900/50 border border-transparent transition-all"
+            >
+              <CalculatorIcon className="w-4 h-4" />
+              Calculadora
+            </Tabs.Trigger>
+            <Tabs.Trigger
+              value="analise"
+              className="flex-1 min-w-[120px] flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-zinc-400 data-[state=active]:bg-pink-900/20 data-[state=active]:text-pink-400 data-[state=active]:border-pink-900/50 border border-transparent transition-all"
+            >
+              <PieChartIcon className="w-4 h-4" />
+              Análise
+            </Tabs.Trigger>
           </Tabs.List>
 
           <div className="bg-zinc-900/30 border border-zinc-800 rounded-3xl p-6 min-h-[400px]">
@@ -238,11 +254,20 @@ export default function Home() {
                 transactions={filteredTransactions}
                 onAdd={addTransaction}
                 onUpdate={updateTransaction}
+                onRemove={removeTransaction}
               />
             </Tabs.Content>
             
             <Tabs.Content value="dividas-metas" className="focus:outline-none">
               <DebtsAndGoals debts={debts} goals={goals} />
+            </Tabs.Content>
+
+            <Tabs.Content value="calculadora" className="focus:outline-none flex justify-center py-8">
+              <Calculator />
+            </Tabs.Content>
+
+            <Tabs.Content value="analise" className="focus:outline-none py-8">
+              <ConsumptionAnalysis transactions={filteredTransactions} />
             </Tabs.Content>
           </div>
         </Tabs.Root>

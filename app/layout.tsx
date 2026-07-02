@@ -15,6 +15,13 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Controle de Gastos",
   description: "Gerencie suas finanças pessoais",
+  manifest: "/manifest.json",
+  themeColor: "#09090b",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Financeiro",
+  },
 };
 
 export default function RootLayout({

@@ -235,12 +235,12 @@ export function useTransactions() {
     const standards: (Omit<Transaction, 'id' | 'userId'> & { id: string })[] = [
       { id: Math.random().toString(36).substring(7), type: 'entrada', categoryId: 'salario', description: 'Salário Maicon', amount: 1500.00, date },
       { id: Math.random().toString(36).substring(7), type: 'entrada', categoryId: 'renda-extra', description: 'Salário Gabrielle', amount: 1600.00, date },
-      { id: Math.random().toString(36).substring(7), type: 'saida', categoryId: 'filhas', description: 'Pensão Bia', amount: 600.00, date },
-      { id: Math.random().toString(36).substring(7), type: 'saida', categoryId: 'moradia', description: 'Cibele (Moradia)', amount: 320.00, date },
-      { id: Math.random().toString(36).substring(7), type: 'saida', categoryId: 'moradia', description: 'Luz', amount: 300.00, date },
-      { id: Math.random().toString(36).substring(7), type: 'saida', categoryId: 'telecom', description: 'Internet (OSIR)', amount: 116.00, date },
-      { id: Math.random().toString(36).substring(7), type: 'saida', categoryId: 'telecom', description: 'Vivo', amount: 100.00, date },
-      { id: Math.random().toString(36).substring(7), type: 'saida', categoryId: 'educacao', description: 'Faculdade', amount: 160.00, date }
+      { id: Math.random().toString(36).substring(7), type: 'saida', categoryId: 'filhas', description: 'Pensão Bia', amount: 600.00, date, tags: ['filhas'] },
+      { id: Math.random().toString(36).substring(7), type: 'saida', categoryId: 'moradia', description: 'Cibele (Moradia)', amount: 320.00, date, tags: ['casa'] },
+      { id: Math.random().toString(36).substring(7), type: 'saida', categoryId: 'moradia', description: 'Luz', amount: 300.00, date, tags: ['casa', 'essencial'] },
+      { id: Math.random().toString(36).substring(7), type: 'saida', categoryId: 'telecom', description: 'Internet (OSIR)', amount: 116.00, date, tags: ['casa', 'assinaturas'] },
+      { id: Math.random().toString(36).substring(7), type: 'saida', categoryId: 'telecom', description: 'Vivo', amount: 100.00, date, tags: ['assinaturas'] },
+      { id: Math.random().toString(36).substring(7), type: 'saida', categoryId: 'educacao', description: 'Faculdade', amount: 160.00, date, tags: ['essencial'] }
     ];
 
     try {

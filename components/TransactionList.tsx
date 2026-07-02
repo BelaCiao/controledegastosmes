@@ -50,9 +50,20 @@ export function TransactionList({
               </div>
               <div>
                 <p className="font-medium text-zinc-200">{t.description}</p>
-                <p className="text-xs text-zinc-500">
-                  {format(parseISO(t.date), "dd 'de' MMMM", { locale: ptBR })}
-                </p>
+                <div className="flex items-center gap-2 mt-1">
+                  <p className="text-xs text-zinc-500">
+                    {format(parseISO(t.date), "dd 'de' MMMM", { locale: ptBR })}
+                  </p>
+                  {t.tags && t.tags.length > 0 && (
+                    <div className="flex items-center gap-1">
+                      {t.tags.map((tag) => (
+                        <span key={tag} className="text-[10px] bg-zinc-800 text-zinc-400 px-1.5 py-0.5 rounded-sm">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-4">

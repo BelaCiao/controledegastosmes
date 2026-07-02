@@ -15,6 +15,7 @@ export interface Transaction {
   amount: number;
   date: string; // ISO string
   userId?: string;
+  tags?: string[];
 }
 
 export interface Debt {
@@ -52,4 +53,16 @@ export const CATEGORIES: Category[] = [
   { id: "filhas", name: "Filhas (Pensão/Despesas)", type: "saida", color: "bg-purple-500" },
   { id: "ferramentas", name: "Ferramentas/Assinaturas", type: "saida", color: "bg-zinc-500" },
   { id: "outros", name: "Outros", type: "ambos", color: "bg-zinc-500" },
+];
+
+export const TAGS = [
+  "detran",
+  "banco",
+  "saúde",
+  "filhas",
+  "tecnologia",
+  "assinaturas",
+  "impostos",
+  "casa",
+  "essencial"
 ];

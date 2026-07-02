@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Transaction } from "@/lib/types";
-import { CATEGORIES } from "@/lib/types";
+import { Transaction, CATEGORIES, TAGS } from "@/lib/types";
 
 interface AddTransactionModalProps {
   onAdd: (t: Omit<Transaction, 'id' | 'date'> & { id?: string, date?: string }) => void;
@@ -11,7 +10,16 @@ export function AddTransactionModal({ onAdd }: AddTransactionModalProps) {
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [categoryId, setCategoryId] = useState("outros");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+
+  const toggleTag = (tag: string) => {
+    if (selectedTags.includes(tag)) {
+      setSelectedTags(selectedTags.filter(t => t !== tag));
+    } else {
+      setSelectedTags([...selectedTags, tag]);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,10 +30,12 @@ export function AddTransactionModal({ onAdd }: AddTransactionModalProps) {
       categoryId,
       description,
       amount: Number(amount),
+      tags: selectedTags.length > 0 ? selectedTags : undefined,
     });
 
     setDescription("");
     setAmount("");
+    setSelectedTags([]);
     setIsOpen(false);
   };
 
@@ -116,6 +126,31 @@ export function AddTransactionModal({ onAdd }: AddTransactionModalProps) {
                 </option>
               ))}
             </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">
+              Tags (Opcional)
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {TAGS.map((tag) => {
+                const isSelected = selectedTags.includes(tag);
+                return (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => toggleTag(tag)}
+                    className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
+                      isSelected
+                        ? "bg-indigo-500 text-white"
+                        : "bg-zinc-900 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-300 border border-zinc-800"
+                    }`}
+                  >
+                    {tag}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           <div className="flex gap-3 pt-4">
